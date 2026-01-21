@@ -3,7 +3,7 @@ name: Deploy Angular to AWS CodeDeploy
 # Se ejecuta solo después de que build.yml termine correctamente
 on:
   workflow_run:
-    workflows: ["build"]   # Nombre exacto de tu workflow de build
+    workflows: ["Node.js CI"]   # Nombre exacto de tu workflow de build
     types:
       - completed
 
