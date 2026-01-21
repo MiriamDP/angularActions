@@ -1,8 +1,11 @@
 name: Deploy Angular to AWS CodeDeploy
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["Node.js CI"]  # EXACTAMENTE el nombre de tu workflow de build
+    types:
+      - completed
+
 
 jobs:
   deploy:
