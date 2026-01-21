@@ -1,0 +1,45 @@
+name: Deploy Angular to AWS CodeDeploy
+
+# Se ejecuta solo después de que build.yml termine correctamente
+on:
+  workflow_run:
+    workflows: ["build"]   # Nombre exacto de tu workflow de build
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Clonar el repo
+    - uses: actions/checkout@v4
+
+    # 2️⃣ Configurar credenciales AWS
+    - uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    # 3️⃣ Preparar paquete de deploy
+    - name: Prepare deployment bundle
+      run: |
+        mkdir deploy
+        cp -r actions/dist/* deploy/
+        cp appspec.yml deploy/
+        cp -r scripts deploy/
+        cd deploy
+        zip -r ../deploy.zip .
+
+    # 4️⃣ Desplegar con CodeDeploy directamente (sin S3)
+    - name: Deploy to AWS CodeDeploy
+      run: |
+        aws deploy create-deployment \
+          --application-name angular-app \
+          --deployment-group-name angular-app-dg \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --description "Deploy desde GitHub Actions" \
+          --file-exists-behavior OVERWRITE \
+          --zip-file fileb://deploy.zip
