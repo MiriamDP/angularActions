@@ -1,29 +1,32 @@
 name: Deploy Angular to AWS CodeDeploy
 
-# Se ejecuta solo después de que build.yml termine correctamente
 on:
-  workflow_run:
-    workflows: ["Node.js CI"]   # Nombre exacto de tu workflow de build
-    types:
-      - completed
+  push:
+    branches: [ "main" ]
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
     # 1️⃣ Clonar el repo
     - uses: actions/checkout@v4
 
-    # 2️⃣ Configurar credenciales AWS
+    # 2️⃣ Descargar build artifact generado por el workflow de build
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: angular-dist
+        path: actions/dist
+
+    # 3️⃣ Configurar credenciales AWS
     - uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    # 3️⃣ Preparar paquete de deploy
+    # 4️⃣ Preparar paquete de deploy
     - name: Prepare deployment bundle
       run: |
         mkdir deploy
@@ -33,7 +36,7 @@ jobs:
         cd deploy
         zip -r ../deploy.zip .
 
-    # 4️⃣ Desplegar con CodeDeploy directamente (sin S3)
+    # 5️⃣ Desplegar con CodeDeploy directamente (sin S3)
     - name: Deploy to AWS CodeDeploy
       run: |
         aws deploy create-deployment \
