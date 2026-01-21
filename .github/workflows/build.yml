@@ -26,10 +26,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
+        cache-dependency-path: actions/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+      working-directory: actions
     
     - name: Run tests
       run: npm run test:ci
+      working-directory: actions
       
     - name: Build
       run: npm run build
+      working-directory: actions
