@@ -38,9 +38,10 @@ jobs:
     - name: Build
       run: npm run build
       working-directory: actions
+
     - name: Upload build artifact
-    uses: actions/upload-artifact@v3
-    with:
-      name: angular-dist
-      path: actions/dist
+      uses: actions/upload-artifact@v3
+      with:
+        name: angular-dist
+        path: actions/dist
 
