@@ -15,4 +15,3 @@ EXPOSE 4200
 
 # Comando por defecto al iniciar el contenedor
 #CMD ["ng", "version"]
-
