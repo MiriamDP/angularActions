@@ -2,8 +2,9 @@ version: 0.0
 os: linux
 
 files:
-  - source: /
+  - source: /actions/dist
     destination: /var/www/frontend
+    overwrite: true
 
 hooks:
   BeforeInstall:
