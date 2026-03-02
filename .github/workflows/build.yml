@@ -68,8 +68,8 @@ jobs:
   #   # 5️⃣ Desplegar con CodeDeploy directamente (sin S3)
     - name: Deploy to AWS CodeDeploy
       run: |
-        aws deploy create-deployment 
-          --application-name angular_app
-          --github-location repository=${{github.repository}},commitID=${{github.sha}}
-          --deployment-group-name "Frontend"
+        aws deploy create-deployment \
+          --application-name angular_app \
+          --github-location repository=${{github.repository}},commitID=${{github.sha}} \
+          --deployment-group-name "Frontend" \
 
