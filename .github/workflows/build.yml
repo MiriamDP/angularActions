@@ -1,7 +1,7 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Node.js CI
+name: Build and test
 
 on:
   push:
@@ -47,31 +47,29 @@ jobs:
     # 1️⃣ Clonar el repo
     - uses: actions/checkout@v4
 
-    # 3️⃣ Configurar credenciales AWS
+  #   # 3️⃣ Configurar credenciales AWS
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: us-east-1
+        aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
 
-    # 4️⃣ Preparar paquete de deploy
-    - name: Prepare deployment bundle
-      run: |
-        mkdir deploy
-        cp -r actions/dist/* deploy/
-        cp appspec.yml deploy/
-        cp -r scripts deploy/
-        cd deploy
-        zip -r ../deploy.zip .
+  #   # 4️⃣ Preparar paquete de deploy
+    # - name: Prepare deployment bundle
+    #   run: |
+    #     mkdir deploy
+    #     cp -r actions/dist/* deploy/
+    #     cp appspec.yml deploy/
+    #     cp -r scripts deploy/
+    #     cd deploy
+    #     zip -r ../deploy.zip .
 
-    # 5️⃣ Desplegar con CodeDeploy directamente (sin S3)
+  #   # 5️⃣ Desplegar con CodeDeploy directamente (sin S3)
     - name: Deploy to AWS CodeDeploy
       run: |
-        aws deploy create-deployment \
-          --application-name angular-app \
-          --deployment-group-name angular-app-dg \
-          --deployment-config-name CodeDeployDefault.OneAtATime \
-          --description "Deploy desde GitHub Actions" \
-          --file-exists-behavior OVERWRITE \
-          --zip-file fileb://deploy.zip
+        aws deploy create-deployment 
+          --application-name angular_app
+          --github-location repository=${{github.repository}},commitID=${{github.sha}}
+          --deployment-group-name "Frontend"
 
